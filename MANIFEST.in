@@ -1,7 +1,7 @@
 include README.md
 include LICENSE
-include search_engine.py
-recursive-include data *.json
-recursive-include code *.java
-recursive-include code *.xml
+recursive-include coding_agent/data *.json
+recursive-include coding_agent/code *.java
+recursive-include coding_agent/code *.xml
 recursive-include coding_agent/templates *
+include coding_agent/search_engine.py

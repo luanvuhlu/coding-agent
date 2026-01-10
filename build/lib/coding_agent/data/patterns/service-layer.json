@@ -1,0 +1,36 @@
+{
+  "id": "service-layer",
+  "name": "Service Layer Pattern",
+  "description": "Business logic layer that sits between controllers and repositories",
+  "complexity": "low",
+  "keywords": ["service", "business-logic", "transaction", "service-layer", "@service", "logic"],
+  
+  "steps": [
+    {
+      "title": "Create Service Class",
+      "description": "Implement business logic with @Service annotation",
+      "files": ["code/EntityService.java"]
+    },
+    {
+      "title": "Inject in Controller",
+      "description": "Use constructor injection to wire service",
+      "files": ["code/EntityController.java"]
+    },
+    {
+      "title": "Add Unit Tests",
+      "description": "Mock repository and test service methods",
+      "files": ["code/EntityServiceTest.java"]
+    }
+  ],
+  
+  "dependencies": [
+    "spring-boot-starter"
+  ],
+  
+  "notes": [
+    "Keep business logic in service layer, not in controllers or repositories",
+    "Use @Transactional for methods that modify data",
+    "Prefer constructor injection over field injection",
+    "One service per aggregate root (avoid God classes)"
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "id": "create-crud-api",
+  "name": "Create CRUD REST API",
+  "description": "Complete workflow to build a CRUD API from database to controller",
+  "keywords": ["create", "crud", "api", "rest", "full-stack", "endpoint", "database", "entity", "workflow", "complete"],
+  
+  "variables": {
+    "entity_name": {
+      "type": "string",
+      "description": "Entity name (e.g., User, Product, Order)",
+      "example": "Product"
+    },
+    "table_name": {
+      "type": "string",
+      "description": "Database table name (snake_case)",
+      "example": "products"
+    },
+    "columns": {
+      "type": "array",
+      "description": "Table columns in format: name:type:constraints",
+      "example": ["name:varchar(255):not_null", "price:decimal(10,2)", "active:boolean:default_true"]
+    }
+  },
+  
+  "tasks": [
+    {
+      "step": 1,
+      "name": "Create Liquibase Migration",
+      "pattern": "liquibase-migration",
+      "description": "Add database table and columns",
+      "files": [
+        {
+          "path": "src/main/resources/db/changelog/{{timestamp}}-create-{{table_name}}.xml",
+          "template": "liquibase-create-table",
+          "params": {
+            "table": "{{table_name}}",
+            "columns": "{{columns}}"
+          }
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "name": "Create JPA Entity",
+      "pattern": "jpa-entity",
+      "description": "Map database table to Java entity class",
+      "files": [
+        {
+          "path": "src/main/java/com/example/entity/{{entity_name}}.java",
+          "template": "jpa-entity",
+          "params": {
+            "entity": "{{entity_name}}",
+            "table": "{{table_name}}",
+            "fields": "{{columns}}"
+          }
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "name": "Create Repository Interface",
+      "pattern": "repository-layer",
+      "description": "Define data access methods",
+      "files": [
+        {
+          "path": "src/main/java/com/example/repository/{{entity_name}}Repository.java",
+          "template": "spring-data-repository",
+          "params": {
+            "entity": "{{entity_name}}"
+          }
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Create Service Layer",
+      "pattern": "service-layer",
+      "description": "Implement business logic",
+      "files": [
+        {
+          "path": "src/main/java/com/example/service/{{entity_name}}Service.java",
+          "template": "service-class",
+          "params": {
+            "entity": "{{entity_name}}"
+          }
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Create REST Controller",
+      "pattern": "rest-controller",
+      "description": "Expose CRUD endpoints",
+      "files": [
+        {
+          "path": "src/main/java/com/example/controller/{{entity_name}}Controller.java",
+          "template": "rest-controller",
+          "params": {
+            "entity": "{{entity_name}}",
+            "path": "/api/{{table_name}}"
+          }
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "name": "Create DTOs",
+      "pattern": "dto-pattern",
+      "description": "Request and response objects",
+      "files": [
+        {
+          "path": "src/main/java/com/example/dto/{{entity_name}}Request.java",
+          "template": "dto-request",
+          "params": {
+            "entity": "{{entity_name}}",
+            "fields": "{{columns}}"
+          }
+        },
+        {
+          "path": "src/main/java/com/example/dto/{{entity_name}}Response.java",
+          "template": "dto-response",
+          "params": {
+            "entity": "{{entity_name}}",
+            "fields": "{{columns}}"
+          }
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "name": "Add Unit Tests",
+      "pattern": "service-test",
+      "description": "Test service layer with mocks",
+      "files": [
+        {
+          "path": "src/test/java/com/example/service/{{entity_name}}ServiceTest.java",
+          "template": "service-test",
+          "params": {
+            "entity": "{{entity_name}}"
+          }
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "name": "Add Integration Tests",
+      "pattern": "controller-integration-test",
+      "description": "Test API endpoints end-to-end",
+      "files": [
+        {
+          "path": "src/test/java/com/example/controller/{{entity_name}}ControllerTest.java",
+          "template": "controller-integration-test",
+          "params": {
+            "entity": "{{entity_name}}",
+            "path": "/api/{{table_name}}"
+          }
+        }
+      ]
+    }
+  ],
+  
+  "dependencies": [
+    "spring-boot-starter-web",
+    "spring-boot-starter-data-jpa",
+    "liquibase-core"
+  ],
+  
+  "estimated_time": "30-45 minutes",
+  
+  "checklist": [
+    "Verify database migration runs successfully",
+    "Test repository methods work with H2/test database",
+    "Validate all CRUD endpoints with Postman/curl",
+    "Ensure tests pass with >80% coverage"
+  ]
+}
