@@ -235,7 +235,11 @@ def _generate_system_prompt(provider, project_name):
     
     search_command = "python .coding-agent/search_engine.py"
     
-    prompt = f"""# Coding Agent - System Prompt
+    prompt = f"""---
+agent: 'agent'
+description: 'Help the user build a Spring Boot project using coding patterns and tasks.'
+---
+# Coding Agent - System Prompt
 
 You are an expert Spring Boot developer assisting.
 
