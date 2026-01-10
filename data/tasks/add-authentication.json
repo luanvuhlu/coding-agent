@@ -1,0 +1,130 @@
+{
+  "id": "add-jwt-authentication",
+  "name": "Add JWT Authentication to Existing API",
+  "description": "Secure existing REST API with JWT token-based authentication",
+  "keywords": ["authentication", "jwt", "security", "secure", "login", "token", "protect", "auth", "spring-security"],
+  
+  "prerequisites": [
+    "Existing REST API with controllers",
+    "User entity with username/password"
+  ],
+  
+  "tasks": [
+    {
+      "step": 1,
+      "name": "Add Security Dependencies",
+      "pattern": "maven-dependencies",
+      "description": "Add Spring Security and JWT libraries",
+      "files": [
+        {
+          "path": "pom.xml",
+          "action": "append",
+          "template": "security-dependencies"
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "name": "Create JWT Service",
+      "pattern": "jwt-service",
+      "description": "Generate and validate JWT tokens",
+      "files": [
+        {
+          "path": "src/main/java/com/example/security/JwtService.java",
+          "template": "jwt-service"
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "name": "Create JWT Filter",
+      "pattern": "jwt-filter",
+      "description": "Intercept requests and validate tokens",
+      "files": [
+        {
+          "path": "src/main/java/com/example/security/JwtAuthenticationFilter.java",
+          "template": "jwt-filter"
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Configure Security",
+      "pattern": "security-config",
+      "description": "Setup Spring Security filter chain",
+      "files": [
+        {
+          "path": "src/main/java/com/example/config/SecurityConfig.java",
+          "template": "security-config"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Create Auth Controller",
+      "pattern": "auth-controller",
+      "description": "Login and registration endpoints",
+      "files": [
+        {
+          "path": "src/main/java/com/example/controller/AuthController.java",
+          "template": "auth-controller"
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "name": "Add Configuration",
+      "pattern": "application-properties",
+      "description": "JWT secret and expiration settings",
+      "files": [
+        {
+          "path": "src/main/resources/application.yml",
+          "action": "append",
+          "template": "jwt-config"
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "name": "Add Tests",
+      "pattern": "security-test",
+      "description": "Test authentication flow",
+      "files": [
+        {
+          "path": "src/test/java/com/example/security/JwtServiceTest.java",
+          "template": "jwt-service-test"
+        }
+      ]
+    }
+  ],
+  
+  "dependencies": [
+    "spring-boot-starter-security",
+    "io.jsonwebtoken:jjwt-api:0.11.5",
+    "io.jsonwebtoken:jjwt-impl:0.11.5",
+    "io.jsonwebtoken:jjwt-jackson:0.11.5"
+  ],
+  
+  "configuration": {
+    "environment_variables": [
+      "JWT_SECRET=your-256-bit-secret",
+      "JWT_EXPIRATION=3600000"
+    ]
+  },
+  
+  "estimated_time": "45-60 minutes",
+  
+  "checklist": [
+    "Generate JWT secret (256-bit minimum)",
+    "Test login endpoint returns valid token",
+    "Test protected endpoints require Authorization header",
+    "Verify token expiration works correctly",
+    "Test invalid/expired tokens return 401"
+  ],
+  
+  "notes": [
+    "Never commit JWT_SECRET to version control",
+    "Use environment variables in production",
+    "Consider refresh token mechanism for production"
+  ]
+}
