@@ -11,19 +11,14 @@ import sys
 from pathlib import Path
 
 
-def init_project(provider, project_name=None):
+def init_project(provider):
     """
     Initialize coding-agent in the current project
     
     Args:
         provider: AI provider (claude, gpt, copilot)
-        project_name: Optional project name (auto-detected if not provided)
     """
     cwd = Path.cwd()
-    
-    # Auto-detect project name
-    if not project_name:
-        project_name = cwd.name
     
     # Create .coding-agent directory
     coding_agent_dir = cwd / ".coding-agent"
@@ -56,7 +51,6 @@ def init_project(provider, project_name=None):
     # 1. Create config.json
     print("📝 Creating config.json...")
     config = {
-        "project_name": project_name,
         "ai_provider": provider,
         "version": "0.1.0",
         "patterns_path": "patterns",
@@ -132,14 +126,14 @@ def init_project(provider, project_name=None):
     
     # 4. Create system prompt for the AI provider
     print("🤖 Creating system prompt...")
-    system_prompt = _generate_system_prompt(provider, project_name)
+    system_prompt = _generate_system_prompt(provider)
     
     with open(coding_agent_dir / "SYSTEM_PROMPT.md", 'w', encoding='utf-8') as f:
         f.write(system_prompt)
     
     # 5. Create README
     print("📖 Creating README...")
-    readme = _generate_readme(provider, project_name)
+    readme = _generate_readme(provider)
     
     with open(coding_agent_dir / "README.md", 'w', encoding='utf-8') as f:
         f.write(readme)
@@ -167,14 +161,14 @@ def init_project(provider, project_name=None):
     print(f"   - Ask your AI to help you with your project!")
 
 
-def _generate_system_prompt(provider, project_name):
+def _generate_system_prompt(provider):
     """Generate AI provider-specific system prompt"""
     
     search_command = "python .coding-agent/search_engine.py"
     
     prompt = f"""# Coding Agent - System Prompt
 
-You are an expert Spring Boot developer assisting with the '{project_name}' project.
+You are an expert Spring Boot developer assisting.
 
 ## Your Capabilities
 
@@ -357,16 +351,16 @@ Multi-step workflows for common scenarios:
 
 ---
 
-Ready to help build '{project_name}'! 🎉
+Ready to help build projects! 🎉
 """
     
     return prompt
 
 
-def _generate_readme(provider, project_name):
+def _generate_readme(provider):
     """Generate quick reference README"""
     
-    return f"""# Coding Agent - {{project_name}}
+    return f"""# Coding Agent
 
 This folder contains your project's coding pattern library and search tools.
 
@@ -456,14 +450,9 @@ See `.gitignore` for exclusion rules.
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
-        print("Usage: init.py <provider> [--project-name NAME]")
+        print("Usage: init.py <provider>")
         sys.exit(1)
     
     provider = sys.argv[1]
-    project_name = None
     
-    if "--project-name" in sys.argv:
-        idx = sys.argv.index("--project-name")
-        project_name = sys.argv[idx + 1]
-    
-    init_project(provider, project_name)
+    init_project(provider)

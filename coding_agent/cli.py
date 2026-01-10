@@ -33,7 +33,7 @@ def main():
     
     if args.command == "init":
         from .init import init_project
-        init_project(args.provider, args.project_name)
+        init_project(args.provider)
     elif args.command is None:
         parser.print_help()
         sys.exit(1)
