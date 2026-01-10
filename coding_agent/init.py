@@ -36,11 +36,21 @@ def init_project(provider, project_name=None):
     
     coding_agent_dir.mkdir(parents=True, exist_ok=True)
     
-    # Get the library root directory
-    lib_root = Path(__file__).parent.parent
+    # Resolve library root directory (support installed package and repo layout)
+    package_dir = Path(__file__).parent  # coding_agent package directory
+    # Prefer an ancestor that contains 'data' directory
+    lib_root = None
+    for candidate in (package_dir, package_dir.parent, package_dir.parent.parent):
+        if (candidate / "data").exists():
+            lib_root = candidate
+            break
+    if lib_root is None:
+        # Fallback to package_dir
+        lib_root = package_dir
+
     lib_data = lib_root / "data"
     lib_code = lib_root / "code"
-    
+
     # 1. Create config.json
     print("📝 Creating config.json...")
     config = {
@@ -52,13 +62,13 @@ def init_project(provider, project_name=None):
         "code_path": "code",
         "search_engine": "search_engine.py"
     }
-    
+
     with open(coding_agent_dir / "config.json", 'w') as f:
         json.dump(config, f, indent=2)
-    
+
     # 2. Create symlinks or copy directories
     print("🔗 Setting up pattern/task libraries...")
-    
+
     # Symlink patterns
     patterns_src = lib_data / "patterns"
     patterns_dst = coding_agent_dir / "patterns"
@@ -68,7 +78,7 @@ def init_project(provider, project_name=None):
                 # Windows: use directory junction
                 import subprocess
                 subprocess.run(["mklink", "/J", str(patterns_dst), str(patterns_src)], 
-                             check=True, capture_output=True)
+                             check=True, capture_output=True, shell=True)
             else:
                 # Unix: use symlink
                 patterns_dst.symlink_to(patterns_src)
@@ -76,7 +86,7 @@ def init_project(provider, project_name=None):
             print(f"⚠️  Could not create symlink for patterns: {e}")
             print("   Copying patterns instead...")
             shutil.copytree(patterns_src, patterns_dst)
-    
+
     # Symlink tasks
     tasks_src = lib_data / "tasks"
     tasks_dst = coding_agent_dir / "tasks"
@@ -85,14 +95,14 @@ def init_project(provider, project_name=None):
             if sys.platform == "win32":
                 import subprocess
                 subprocess.run(["mklink", "/J", str(tasks_dst), str(tasks_src)], 
-                             check=True, capture_output=True)
+                             check=True, capture_output=True, shell=True)
             else:
                 tasks_dst.symlink_to(tasks_src)
         except Exception as e:
             print(f"⚠️  Could not create symlink for tasks: {e}")
             print("   Copying tasks instead...")
             shutil.copytree(tasks_src, tasks_dst)
-    
+
     # Symlink code examples
     if lib_code.exists():
         code_dst = coding_agent_dir / "code"
@@ -100,23 +110,34 @@ def init_project(provider, project_name=None):
             if sys.platform == "win32":
                 import subprocess
                 subprocess.run(["mklink", "/J", str(code_dst), str(lib_code)], 
-                             check=True, capture_output=True)
+                             check=True, capture_output=True, shell=True)
             else:
                 code_dst.symlink_to(lib_code)
         except Exception as e:
             print(f"⚠️  Could not create symlink for code: {e}")
             print("   Copying code instead...")
             shutil.copytree(lib_code, code_dst)
-    
+
     # 3. Copy search engine
     print("🔍 Setting up search engine...")
-    search_src = lib_root / "search_engine.py"
+    # Search for search_enhanced.py in likely locations
+    search_candidates = [
+        lib_root / "search_enhanced.py",
+        package_dir / "search_enhanced.py",
+        lib_root / "search_engine.py",
+        package_dir / "search_engine.py",
+    ]
+    search_src = None
+    for cand in search_candidates:
+        if cand.exists():
+            search_src = cand
+            break
     search_dst = coding_agent_dir / "search_engine.py"
-    
-    if search_src.exists():
+
+    if search_src:
         shutil.copy2(search_src, search_dst)
     else:
-        print(f"⚠️  Warning: Could not find search_engine.py at {search_src}")
+        print(f"⚠️  Warning: Could not find search_enhanced.py in library paths (checked {search_candidates})")
     
     # 4. Create system prompt for the AI provider
     print("🤖 Creating system prompt...")
