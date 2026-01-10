@@ -39,15 +39,28 @@ def init_project(provider, project_name=None):
     
     # Resolve library root directory (support installed package and repo layout)
     package_dir = Path(__file__).parent  # coding_agent package directory
-    # Prefer an ancestor that contains 'data' directory
+    
+    # Check multiple locations for data directory
     lib_root = None
-    for candidate in (package_dir, package_dir.parent, package_dir.parent.parent):
+    candidates = [
+        package_dir,                # Within package (after pip install if we move files there)
+        package_dir.parent,         # Repo root (development)
+        package_dir.parent.parent,  # Site-packages parent
+        Path(sys.prefix) / "share" / "coding-agent",  # Standard install location
+    ]
+    
+    for candidate in candidates:
         if (candidate / "data").exists():
             lib_root = candidate
             break
+    
     if lib_root is None:
-        # Fallback to package_dir
-        lib_root = package_dir
+        print(f"❌ Error: Could not find data directory in any of these locations:")
+        for c in candidates:
+            print(f"   - {c / 'data'}")
+        print(f"\n💡 Tip: Make sure you installed from the repository root:")
+        print(f"   pip install -e .")
+        sys.exit(1)
 
     lib_data = lib_root / "data"
     lib_code = lib_root / "code"

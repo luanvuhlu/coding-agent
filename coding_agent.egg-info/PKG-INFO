@@ -1,0 +1,42 @@
+Metadata-Version: 2.4
+Name: coding-agent
+Version: 0.1.0
+Summary: AI-powered coding patterns and tasks library for Spring Boot projects
+Home-page: https://github.com/yourusername/coding-agent
+Author: Coding Agent
+Author-email: 
+License: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: requires-python
+Dynamic: summary
+
+Usage Example
+
+     # Basic search
+     python3 search.py "jwt authentication"
+
+     # Filtered search
+     python3 search.py "authentication" --category security --framework spring-boot
+
+     # Get only code
+     python3 search.py "repository pattern" --mode code-only
+
+     # Filter by complexity
+     python3 search.py "authentication" --complexity low
