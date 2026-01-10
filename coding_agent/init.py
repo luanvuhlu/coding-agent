@@ -64,7 +64,7 @@ def init_project(provider, project_name=None):
         "search_engine": "search_engine.py"
     }
 
-    with open(coding_agent_dir / "config.json", 'w') as f:
+    with open(coding_agent_dir / "config.json", 'w', encoding='utf-8') as f:
         json.dump(config, f, indent=2)
 
     # 2. Create symlinks or copy directories
@@ -121,10 +121,10 @@ def init_project(provider, project_name=None):
 
     # 3. Copy search engine
     print("🔍 Setting up search engine...")
-    # Search for search_enhanced.py in likely locations
+    # Search for search_engine.py in likely locations
     search_candidates = [
-        lib_root / "search_enhanced.py",
-        package_dir / "search_enhanced.py",
+        lib_root / "search_engine.py",
+        package_dir / "search_engine.py",
         lib_root / "search_engine.py",
         package_dir / "search_engine.py",
     ]
@@ -138,20 +138,20 @@ def init_project(provider, project_name=None):
     if search_src:
         shutil.copy2(search_src, search_dst)
     else:
-        print(f"⚠️  Warning: Could not find search_enhanced.py in library paths (checked {search_candidates})")
+        print(f"⚠️  Warning: Could not find search_engine.py in library paths (checked {search_candidates})")
     
     # 4. Create system prompt for the AI provider
     print("🤖 Creating system prompt...")
     system_prompt = _generate_system_prompt(provider, project_name)
     
-    with open(coding_agent_dir / "SYSTEM_PROMPT.md", 'w') as f:
+    with open(coding_agent_dir / "SYSTEM_PROMPT.md", 'w', encoding='utf-8') as f:
         f.write(system_prompt)
     
     # 5. Create README
     print("📖 Creating README...")
     readme = _generate_readme(provider, project_name)
     
-    with open(coding_agent_dir / "README.md", 'w') as f:
+    with open(coding_agent_dir / "README.md", 'w', encoding='utf-8') as f:
         f.write(readme)
     
     # 6. Create .gitignore entry
@@ -160,10 +160,10 @@ def init_project(provider, project_name=None):
     gitignore_entry = ".coding-agent/\n"
     
     if gitignore_path.exists():
-        with open(gitignore_path, 'a') as f:
+        with open(gitignore_path, 'a', encoding='utf-8') as f:
             f.write(gitignore_entry)
     else:
-        with open(gitignore_path, 'w') as f:
+        with open(gitignore_path, 'w', encoding='utf-8') as f:
             f.write(gitignore_entry)
     
     print("\n✅ Coding Agent initialized successfully!")
