@@ -24,10 +24,6 @@ def main():
         choices=["claude", "gpt", "copilot"],
         help="AI provider to use"
     )
-    init_parser.add_argument(
-        "--project-name",
-        help="Project name (auto-detected if not provided)"
-    )
     
     args = parser.parse_args()
     

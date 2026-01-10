@@ -2,9 +2,9 @@
 """
 Project initialization logic for Coding Agent
 Creates .coding-agent folder with patterns, tasks, and search engine
+Places AI-specific prompt files in provider-specific locations
 """
 
-from fileinput import filename
 import json
 import shutil
 import sys
@@ -16,19 +16,36 @@ def init_project(provider):
     Initialize coding-agent in the current project
     
     Args:
-        provider: AI provider (claude, gpt, copilot)
+        provider: AI provider (claude, copilot, gpt)
     """
     cwd = Path.cwd()
+    project_name = cwd.name
     
     # Create .coding-agent directory
     coding_agent_dir = cwd / ".coding-agent"
     
     if coding_agent_dir.exists():
         print(f"❌ Error: {coding_agent_dir} already exists!")
+        print(f"   If you want to reinitialize, delete it first: rm -rf {coding_agent_dir}")
         sys.exit(1)
     
-    print(f"✨ Initializing Coding Agent in '{cwd.name}' project...")
+    # Check if AI provider-specific prompt already exists
+    provider_paths = {
+        'copilot': cwd / ".github" / "prompts" / "coding-agent.prompt.md",
+        'claude': cwd / ".claude" / "skills" / "coding-agent" / "SKILL.md",
+        'gpt': cwd / ".gpt" / "prompts" / "coding-agent.md"  # Generic for GPT
+    }
+    
+    provider_prompt_path = provider_paths.get(provider)
+    if provider_prompt_path and provider_prompt_path.exists():
+        print(f"❌ Error: {provider_prompt_path} already exists!")
+        print(f"   If you want to reinitialize, delete it first: rm {provider_prompt_path}")
+        sys.exit(1)
+    
+    print(f"✨ Initializing Coding Agent for '{project_name}' with {provider.upper()}...")
     print(f"📁 Creating .coding-agent directory...")
+    
+    coding_agent_dir.mkdir(parents=True, exist_ok=True)
     
     coding_agent_dir.mkdir(parents=True, exist_ok=True)
     
@@ -124,44 +141,96 @@ def init_project(provider):
     else:
         print(f"⚠️  Warning: Could not find search_engine.py at {search_src}")
     
-    # 4. Create system prompt for the AI provider
-    print("🤖 Creating system prompt...")
-    system_prompt = _generate_system_prompt(provider)
+    # 4. Create provider-specific system prompt
+    print(f"🤖 Creating {provider.upper()} system prompt...")
+    system_prompt = _generate_system_prompt(provider, project_name)
     
-    with open(coding_agent_dir / "SYSTEM_PROMPT.md", 'w', encoding='utf-8') as f:
+    # Place prompt in provider-specific location
+    if provider == 'copilot':
+        # GitHub Copilot: .github/prompts/coding-agent.prompt.md
+        prompt_dir = cwd / ".github" / "prompts"
+        prompt_dir.mkdir(parents=True, exist_ok=True)
+        prompt_file = prompt_dir / "coding-agent.prompt.md"
+        print(f"   → {prompt_file.relative_to(cwd)}")
+    elif provider == 'claude':
+        # Claude: .claude/skills/coding-agent/SKILL.md
+        prompt_dir = cwd / ".claude" / "skills" / "coding-agent"
+        prompt_dir.mkdir(parents=True, exist_ok=True)
+        prompt_file = prompt_dir / "SKILL.md"
+        print(f"   → {prompt_file.relative_to(cwd)}")
+    elif provider == 'gpt':
+        # GPT: .gpt/prompts/coding-agent.md (generic location)
+        prompt_dir = cwd / ".gpt" / "prompts"
+        prompt_dir.mkdir(parents=True, exist_ok=True)
+        prompt_file = prompt_dir / "coding-agent.md"
+        print(f"   → {prompt_file.relative_to(cwd)}")
+    else:
+        # Fallback: store in .coding-agent
+        prompt_file = coding_agent_dir / "SYSTEM_PROMPT.md"
+        print(f"   → {prompt_file.relative_to(cwd)}")
+    
+    with open(prompt_file, 'w', encoding='utf-8') as f:
         f.write(system_prompt)
     
-    # 5. Create README
+    # 5. Create README in .coding-agent
     print("📖 Creating README...")
-    readme = _generate_readme(provider)
+    readme = _generate_readme(provider, project_name)
     
     with open(coding_agent_dir / "README.md", 'w', encoding='utf-8') as f:
         f.write(readme)
     
-    # 6. Create .gitignore entry
+    # 6. Update .gitignore
     print("🔒 Updating .gitignore...")
     gitignore_path = cwd / ".gitignore"
-    gitignore_entry = ".coding-agent/\n"
+    
+    # Entries to add
+    gitignore_entries = [".coding-agent/\n"]
+    
+    # Don't add provider folders to gitignore - they should be committed!
+    # The prompts are part of the project setup
     
     if gitignore_path.exists():
-        with open(gitignore_path, 'a', encoding='utf-8') as f:
-            f.write(gitignore_entry)
+        # Read existing content
+        with open(gitignore_path, 'r', encoding='utf-8') as f:
+            existing_content = f.read()
+        
+        # Only add if not already present
+        entries_to_add = [entry for entry in gitignore_entries if entry.strip() not in existing_content]
+        
+        if entries_to_add:
+            with open(gitignore_path, 'a', encoding='utf-8') as f:
+                if not existing_content.endswith('\n'):
+                    f.write('\n')
+                f.write(''.join(entries_to_add))
     else:
         with open(gitignore_path, 'w', encoding='utf-8') as f:
-            f.write(gitignore_entry)
+            f.write(''.join(gitignore_entries))
     
     print("\n✅ Coding Agent initialized successfully!")
-    print(f"\n📍 Location: {coding_agent_dir}")
-    print(f"\n📚 Quick Start:")
-    print(f"   1. View available patterns: ls -la {coding_agent_dir}/patterns/")
-    print(f"   2. View available tasks: ls -la {coding_agent_dir}/tasks/")
-    print(f"   3. View system prompt: cat {coding_agent_dir}/SYSTEM_PROMPT.md")
-    print(f"\n💡 Next steps:")
-    print(f"   - Copy SYSTEM_PROMPT.md content to your AI chat")
-    print(f"   - Ask your AI to help you with your project!")
+    print(f"\n📍 Data Location: {coding_agent_dir.relative_to(cwd)}")
+    print(f"📍 Prompt Location: {prompt_file.relative_to(cwd)}")
+    print(f"\n📚 Available Resources:")
+    print(f"   - Patterns: {coding_agent_dir.relative_to(cwd)}/patterns/")
+    print(f"   - Tasks: {coding_agent_dir.relative_to(cwd)}/tasks/")
+    print(f"   - Code Examples: {coding_agent_dir.relative_to(cwd)}/code/")
+    print(f"   - Search Tool: {coding_agent_dir.relative_to(cwd)}/search_engine.py")
+    
+    if provider == 'copilot':
+        print(f"\n💡 GitHub Copilot will automatically discover your prompt at:")
+        print(f"   {prompt_file.relative_to(cwd)}")
+        print(f"\n   Start coding and Copilot will use these patterns!")
+    elif provider == 'claude':
+        print(f"\n💡 Claude Projects will automatically discover your skill at:")
+        print(f"   {prompt_file.relative_to(cwd)}")
+        print(f"\n   Open your project in Claude and ask for help!")
+    else:
+        print(f"\n💡 Next steps:")
+        print(f"   - View the prompt: cat {prompt_file.relative_to(cwd)}")
+        print(f"   - Copy it to your AI assistant")
+        print(f"   - Start building!")
 
 
-def _generate_system_prompt(provider):
+def _generate_system_prompt(provider, project_name):
     """Generate AI provider-specific system prompt"""
     
     search_command = "python .coding-agent/search_engine.py"
@@ -357,7 +426,7 @@ Ready to help build projects! 🎉
     return prompt
 
 
-def _generate_readme(provider):
+def _generate_readme(provider, project_name):
     """Generate quick reference README"""
     
     return f"""# Coding Agent
@@ -454,5 +523,5 @@ if __name__ == "__main__":
         sys.exit(1)
     
     provider = sys.argv[1]
-    
     init_project(provider)
+
