@@ -110,13 +110,13 @@ def init_project(provider, project_name=None):
     
     # 3. Copy search engine
     print("🔍 Setting up search engine...")
-    search_src = lib_root / "search_enhanced.py"
+    search_src = lib_root / "search_engine.py"
     search_dst = coding_agent_dir / "search_engine.py"
     
     if search_src.exists():
         shutil.copy2(search_src, search_dst)
     else:
-        print(f"⚠️  Warning: Could not find search_enhanced.py at {search_src}")
+        print(f"⚠️  Warning: Could not find search_engine.py at {search_src}")
     
     # 4. Create system prompt for the AI provider
     print("🤖 Creating system prompt...")
