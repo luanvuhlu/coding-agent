@@ -4,6 +4,7 @@ Project initialization logic for Coding Agent
 Creates .coding-agent folder with patterns, tasks, and search engine
 """
 
+from fileinput import filename
 import json
 import shutil
 import sys
@@ -243,7 +244,7 @@ python .coding-agent/search_engine.py "pagination"
 ---
 
 ### 2️⃣ Read Pattern Details
-**Command:** `cat .coding-agent/patterns/{id}-simple.json`
+**Command:** `cat .coding-agent/patterns/{{id}}-simple.json`
 
 **Purpose:** View a specific pattern's steps, keywords, dependencies
 
@@ -260,7 +261,7 @@ cat .coding-agent/patterns/jwt-auth-simple.json
 ---
 
 ### 3️⃣ Read Code Examples
-**Command:** `cat .coding-agent/code/{filename}.java`
+**Command:** `cat .coding-agent/code/{{filename}}.java`
 
 **Purpose:** Study code examples for reference
 
@@ -277,7 +278,7 @@ cat .coding-agent/code/SecurityConfig.java
 ---
 
 ### 4️⃣ Read Task Details
-**Command:** `cat .coding-agent/tasks/{id}.json`
+**Command:** `cat .coding-agent/tasks/{{id}}.json`
 
 **Purpose:** View complete multi-step workflow
 
@@ -299,11 +300,11 @@ cat .coding-agent/tasks/add-authentication.json
    - Extract key terms from user request
    - Run search to find relevant patterns/tasks
    
-2. **READ** → `cat .coding-agent/patterns/{id}-simple.json`
+2. **READ** → `cat .coding-agent/patterns/{{id}}-simple.json`
    - Read matching pattern(s) to understand structure
    - Note the steps and dependencies
    
-3. **STUDY CODE** → `cat .coding-agent/code/{filename}.java`
+3. **STUDY CODE** → `cat .coding-agent/code/{{filename}}.java`
    - Review actual code examples
    - Understand the implementation approach
    
@@ -375,7 +376,7 @@ Ready to help build '{project_name}'! 🎉
 def _generate_readme(provider, project_name):
     """Generate quick reference README"""
     
-    return f"""# Coding Agent - {project_name}
+    return f"""# Coding Agent - {{project_name}}
 
 This folder contains your project's coding pattern library and search tools.
 
