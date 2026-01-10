@@ -31,7 +31,7 @@ def init_project(provider):
     
     # Check if AI provider-specific prompt already exists
     provider_paths = {
-        'copilot': cwd / ".github" / "instructions " / "coding-agent.prompt.md",
+        'copilot': cwd / ".github" / "prompts " / "coding-agent.prompt.md",
         'claude': cwd / ".claude" / "skills" / "coding-agent" / "SKILL.md",
         'gpt': cwd / ".gpt" / "prompts" / "coding-agent.md"  # Generic for GPT
     }
@@ -147,10 +147,10 @@ def init_project(provider):
     
     # Place prompt in provider-specific location
     if provider == 'copilot':
-        # GitHub Copilot: .github/instructions/coding-agent.instructions.md
-        prompt_dir = cwd / ".github" / "instructions"
+        # GitHub Copilot: .github/prompts/coding-agent.prompt.md
+        prompt_dir = cwd / ".github" / "prompts"
         prompt_dir.mkdir(parents=True, exist_ok=True)
-        prompt_file = prompt_dir / "coding-agent.instructions.md"
+        prompt_file = prompt_dir / "coding-agent.prompt.md"
         print(f"   → {prompt_file.relative_to(cwd)}")
     elif provider == 'claude':
         # Claude: .claude/skills/coding-agent/SKILL.md
