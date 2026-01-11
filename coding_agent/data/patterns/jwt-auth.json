@@ -9,22 +9,42 @@
     {
       "title": "Create JWT Service",
       "description": "Generate and validate JWT tokens",
-      "files": ["code/JwtService.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/JwtService.java"
+        }
+      ]
     },
     {
       "title": "Create JWT Filter",
       "description": "Intercept requests and authenticate via token",
-      "files": ["code/JwtAuthenticationFilter.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/JwtAuthenticationFilter.java"
+        }
+      ]
     },
     {
       "title": "Configure Security",
       "description": "Register JWT filter in Spring Security chain",
-      "files": ["code/SecurityConfig.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/SecurityConfig.java"
+        }
+      ]
     },
     {
       "title": "Add Tests",
       "description": "Test token generation and validation",
-      "files": ["code/JwtServiceTest.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/JwtServiceTest.java"
+        }
+      ]
     }
   ],
   

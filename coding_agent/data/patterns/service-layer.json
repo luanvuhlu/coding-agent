@@ -9,22 +9,37 @@
     {
       "title": "Create Service Class",
       "description": "Implement business logic with @Service annotation",
-      "files": ["code/EntityService.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityService.java"
+        }
+      ]
     },
     {
       "title": "Inject in Controller",
       "description": "Use constructor injection to wire service",
-      "files": ["code/EntityController.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityController.java"
+        }
+      ]
     },
     {
       "title": "Add Unit Tests",
       "description": "Mock repository and test service methods",
-      "files": ["code/EntityServiceTest.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityServiceTest.java"
+        }
+      ]
     }
   ],
   
   "dependencies": [
-    "spring-boot-starter"
+    "org.springframework.boot:spring-boot-starter"
   ],
   
   "notes": [

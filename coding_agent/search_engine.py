@@ -212,42 +212,179 @@ class KeywordSearch:
         
         return score
     
-    def format_results(self, results, mode='summary'):
-        """Format search results for display"""
+    def format_results(self, results, query):
+        """Format search results with enhanced display"""
+    
         if not results:
-            return "No results found."
+            return self.format_no_results(query)
         
-        output = ["# Search Results\n"]
+        # Calculate metadata
+        top_score = results[0]['score']
+        quality = self.get_quality_level(top_score)
         
+        output = []
+        
+        # Header
+        output.append("=" * 70)
+        output.append(f"🔍 SEARCH RESULTS FOR: \"{query}\"")
+        output.append("=" * 70)
+        output.append(f"\n📊 Found: {len(results)} matches | Top Score: {top_score:.2f}/10 | Quality: {quality}\n")
+        
+        # Results
         for i, result in enumerate(results, 1):
-            output.append(f"## {i}. {result['name']}")
-            output.append(f"**ID:** `{result['id']}` | **Type:** {result['file_type']} | **Complexity:** {result['complexity']}")
-            output.append(f"**Score:** {result['score']:.2f}")
-            output.append(f"**File:** `{result['file_path']}`")
-            
-            if result['keywords']:
-                output.append(f"**Keywords:** {', '.join(result['keywords'])}")
-            
-            output.append(f"\n{result['description']}\n")
-            
-            if mode == 'full':
-                # Show steps if available
-                steps = result['data'].get('steps', [])
-                tasks = result['data'].get('tasks', [])
-                
-                if steps:
-                    output.append("**Steps:**")
-                    for step in steps:
-                        output.append(f"  - {step.get('title', 'N/A')}")
-                    output.append("")
-                
-                if tasks:
-                    output.append("**Workflow:**")
-                    for task in tasks:
-                        output.append(f"  {task.get('step', '')}. {task.get('name', 'N/A')}")
-                    output.append("")
+            output.append(self.format_single_result(result, i, is_top=(i==1)))
         
-        return '\n'.join(output)
+        # Recommendation
+        output.append("\n" + "=" * 70)
+        output.append("💡 AGENT RECOMMENDATION")
+        output.append("=" * 70)
+        output.append(self.format_recommendation(results[0], quality))
+        
+        return "\n".join(output)
+
+
+    def get_quality_level(self, score):
+        """Determine quality level from score"""
+        if score >= 8.0:
+            return "EXCELLENT ⭐⭐⭐⭐⭐"
+        elif score >= 6.0:
+            return "GOOD ⭐⭐⭐⭐"
+        elif score >= 4.0:
+            return "MODERATE ⭐⭐⭐"
+        elif score >= 2.0:
+            return "WEAK ⭐⭐"
+        else:
+            return "NOT RELEVANT ⭐"
+
+
+    def format_single_result(self, result, rank, is_top=False):
+        """Format a single search result"""
+        
+        emoji = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"#{rank}"
+        recommended = " [RECOMMENDED]" if is_top and result['score'] >= 8.0 else ""
+        
+        lines = [
+            "-" * 70,
+            f"{emoji}{recommended} {result['name']}",
+            "-" * 70,
+            f"ID:          {result['id']}",
+            f"Type:        {result['file_type']}",
+            f"Score:       {result['score']:.2f}/10 {self.get_stars(result['score'])}",
+            f"File:        {result['file_path']}",
+            f"Match:       {self.get_quality_level(result['score']).split()[0]}",
+            f"\nDescription:",
+            result['description'],
+        ]
+        
+        return "\n".join(lines)
+
+
+    def get_stars(self, score):
+        """Convert score to star rating"""
+        stars = int(score / 2)  # 0-10 -> 0-5 stars
+        return "⭐" * stars
+
+
+    def format_recommendation(self, top_result, quality):
+        """Format agent recommendation section"""
+        
+        if top_result['score'] >= 8.0:
+            action = f"Use: #{1} ({top_result['id']}) - {quality.split()[0]} match"
+            reason = f"""
+    Reason:
+    - Score is {top_result['score']:.2f}/10 (excellent quality)
+    - Provides complete solution
+    - Matches user intent perfectly
+
+    Next step:
+    → Ask user: "Should I proceed with '{top_result['name']}' {top_result['file_type']}?"
+    """
+        elif top_result['score'] >= 6.0:
+            action = f"Consider: #{1} ({top_result['id']}) - {quality.split()[0]} match"
+            reason = f"""
+    Reason:
+    - Score is {top_result['score']:.2f}/10 (good quality)
+    - May need minor adjustments
+
+    Next step:
+    → Show top 2-3 options and ask user to choose
+    """
+        else:
+            action = f"⚠️  Low quality match - Score: {top_result['score']:.2f}/10"
+            reason = """
+    Recommendation:
+    - Consider trying different search keywords
+    - Or offer to create custom implementation
+
+    Next step:
+    → Ask user if they want to: (1) Try new search, (2) Proceed anyway, (3) Custom code
+    """
+        
+        return f"{action}\n{reason}"
+
+
+    def format_no_results(self, query):
+        """Format output when no results found"""
+        
+        return f"""
+    {"=" * 70}
+    🔍 SEARCH RESULTS FOR: "{query}"
+    {"=" * 70}
+
+    ❌ No matching patterns or tasks found.
+
+    💡 SUGGESTIONS:
+
+    1. Try different keywords:
+    • Broader terms: "api", "crud", "controller"
+    • Specific features: "list", "get all", "pagination"
+
+    2. Common searches that might help:
+    • python .coding-agent/search_engine.py "create rest api"
+    • python .coding-agent/search_engine.py "controller service repository"
+
+    3. Ask agent to create custom implementation
+
+    {"=" * 70}
+    """
+
+    # def format_results(self, results, mode='summary'):
+    #     """Format search results for display"""
+    #     if not results:
+    #         return "No results found."
+        
+    #     output = ["# Search Results\n"]
+        
+    #     for i, result in enumerate(results, 1):
+    #         output.append(f"## {i}. {result['name']}")
+    #         output.append(f"**ID:** {result['id']}")
+    #         output.append(f"**Type:** {result['file_type']}")
+    #         output.append(f"**Score:** {result['score']:.2f}")
+    #         output.append(f"**File:** {result['file_path']}")
+            
+    #         # if result['keywords']:
+    #         #     output.append(f"**Keywords:** {', '.join(result['keywords'])}")
+            
+    #         output.append(f"\n{result['description']}\n")
+            
+    #         if mode == 'full':
+    #             # Show steps if available
+    #             steps = result['data'].get('steps', [])
+    #             tasks = result['data'].get('tasks', [])
+                
+    #             if steps:
+    #                 output.append("**Steps:**")
+    #                 for step in steps:
+    #                     output.append(f"  - {step.get('title', 'N/A')}")
+    #                 output.append("")
+                
+    #             if tasks:
+    #                 output.append("**Workflow:**")
+    #                 for task in tasks:
+    #                     output.append(f"  {task.get('step', '')}. {task.get('name', 'N/A')}")
+    #                 output.append("")
+        
+    #     return '\n'.join(output)
 
 
 if __name__ == "__main__":
@@ -256,8 +393,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Keyword-Based Pattern/Task Search")
     parser.add_argument("query", help="Search query")
     parser.add_argument("--top", type=int, default=5, help="Number of results (default: 5)")
-    parser.add_argument("--mode", choices=['summary', 'full'], default='summary', 
-                       help="Output mode")
+    # parser.add_argument("--mode", choices=['summary', 'full'], default='summary', 
+    #                    help="Output mode")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     parser.add_argument("--show-keywords", action="store_true", 
                        help="Show extracted keywords from query")
@@ -281,4 +418,4 @@ if __name__ == "__main__":
         clean_results = [{k: v for k, v in r.items() if k != 'data'} for r in results]
         print(json.dumps(clean_results, indent=2))
     else:
-        print(searcher.format_results(results, args.mode))
+        print(searcher.format_results(results, args.query))

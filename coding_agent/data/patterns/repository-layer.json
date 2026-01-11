@@ -9,23 +9,38 @@
     {
       "title": "Create Repository Interface",
       "description": "Extend JpaRepository for automatic CRUD methods",
-      "files": ["code/EntityRepository.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityRepository.java"
+        }
+      ]
     },
     {
       "title": "Use in Service Layer",
       "description": "Inject repository via constructor",
-      "files": ["code/EntityService.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityService.java"
+        }
+      ]
     },
     {
       "title": "Add Repository Tests",
       "description": "Test custom queries with @DataJpaTest",
-      "files": ["code/EntityRepositoryTest.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityRepositoryTest.java"
+        }
+      ]
     }
   ],
   
   "dependencies": [
-    "spring-boot-starter-data-jpa",
-    "h2" 
+    "org.springframework.boot:spring-boot-starter-data-jpa",
+    "com.h2database:h2" 
   ],
   
   "notes": [

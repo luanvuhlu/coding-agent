@@ -9,22 +9,42 @@
     {
       "title": "Create Request DTO",
       "description": "Define request payload structure with validation",
-      "files": ["code/EntityCreateRequest.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityCreateRequest.java"
+        }
+      ]
     },
     {
       "title": "Create Response DTO",
       "description": "Define response data structure",
-      "files": ["code/EntityResponse.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityResponse.java"
+        }
+      ]
     },
     {
       "title": "Create REST Controller",
       "description": "Handle HTTP requests and map to service methods",
-      "files": ["code/EntityController.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityController.java"
+        }
+      ]
     },
     {
       "title": "Add Controller Tests",
       "description": "Test endpoints with MockMvc",
-      "files": ["code/EntityControllerTest.java"]
+      "files": [
+        {
+          "language": "java",
+          "path": "code/java/EntityControllerTest.java"
+        }
+      ]
     }
   ],
   
