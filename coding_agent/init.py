@@ -16,10 +16,9 @@ def init_project(provider):
     Initialize coding-agent in the current project
     
     Args:
-        provider: AI provider (claude, copilot, gpt)
+        provider: AI provider (claude, copilot)
     """
     cwd = Path.cwd()
-    project_name = cwd.name
     
     # Create .coding-agent directory
     coding_agent_dir = cwd / ".coding-agent"
@@ -33,7 +32,6 @@ def init_project(provider):
     provider_paths = {
         'copilot': cwd / ".github" / "prompts " / "coding-agent.prompt.md",
         'claude': cwd / ".claude" / "skills" / "coding-agent" / "SKILL.md",
-        'gpt': cwd / ".gpt" / "prompts" / "coding-agent.md"  # Generic for GPT
     }
     
     provider_prompt_path = provider_paths.get(provider)
@@ -42,7 +40,7 @@ def init_project(provider):
         print(f"   If you want to reinitialize, delete it first: rm {provider_prompt_path}")
         sys.exit(1)
     
-    print(f"✨ Initializing Coding Agent for '{project_name}' with {provider.upper()}...")
+    print(f"✨ Initializing Coding Agent with {provider.upper()}...")
     print(f"📁 Creating .coding-agent directory...")
     
     coding_agent_dir.mkdir(parents=True, exist_ok=True)
@@ -143,7 +141,7 @@ def init_project(provider):
     
     # 4. Create provider-specific system prompt
     print(f"🤖 Creating {provider.upper()} system prompt...")
-    system_prompt = _generate_system_prompt(provider, project_name)
+    system_prompt = _generate_system_prompt(provider)
     
     # Place prompt in provider-specific location
     if provider == 'copilot':
@@ -158,12 +156,6 @@ def init_project(provider):
         prompt_dir.mkdir(parents=True, exist_ok=True)
         prompt_file = prompt_dir / "SKILL.md"
         print(f"   → {prompt_file.relative_to(cwd)}")
-    elif provider == 'gpt':
-        # GPT: .gpt/prompts/coding-agent.md (generic location)
-        prompt_dir = cwd / ".gpt" / "prompts"
-        prompt_dir.mkdir(parents=True, exist_ok=True)
-        prompt_file = prompt_dir / "coding-agent.md"
-        print(f"   → {prompt_file.relative_to(cwd)}")
     else:
         # Fallback: store in .coding-agent
         prompt_file = coding_agent_dir / "SYSTEM_PROMPT.md"
@@ -174,7 +166,7 @@ def init_project(provider):
     
     # 5. Create README in .coding-agent
     print("📖 Creating README...")
-    readme = _generate_readme(provider, project_name)
+    readme = _generate_readme(provider)
     
     with open(coding_agent_dir / "README.md", 'w', encoding='utf-8') as f:
         f.write(readme)
@@ -230,7 +222,7 @@ def init_project(provider):
         print(f"   - Start building!")
 
 
-def _generate_system_prompt(provider, project_name):
+def _generate_system_prompt(provider):
     """Generate AI provider-specific system prompt"""
     
     search_command = "python .coding-agent/search_engine.py"
@@ -242,6 +234,17 @@ description: 'Help the user build a Spring Boot project using coding patterns an
 # Coding Agent - System Prompt
 
 You are an expert Spring Boot developer assisting.
+
+## Critical Rule
+
+Before generating ANY code, you must:
+
+1. ✅ Execute: `python .coding-agent/search_engine.py "keywords"`
+2. ✅ Show search results to user
+3. ✅ Ask user which pattern to use
+4. ❌ You CANNOT generate code without completing steps 1-3
+
+If you attempt to generate code without searching, STOP and run the search first.
 
 ## Your Capabilities
 
@@ -301,16 +304,16 @@ python .coding-agent/search_engine.py "pagination"
 ---
 
 ### 2️⃣ Read Pattern Details
-**Command:** `cat .coding-agent/patterns/{{id}}-simple.json`
+**Command:** `cat .coding-agent/patterns/{{id}}.json`
 
 **Purpose:** View a specific pattern's steps, keywords, dependencies
 
 **Examples:**
 ```bash
-cat .coding-agent/patterns/controller-layer-simple.json
-cat .coding-agent/patterns/service-layer-simple.json
-cat .coding-agent/patterns/repository-layer-simple.json
-cat .coding-agent/patterns/jwt-auth-simple.json
+cat .coding-agent/patterns/controller-layer.json
+cat .coding-agent/patterns/service-layer.json
+cat .coding-agent/patterns/repository-layer.json
+cat .coding-agent/patterns/jwt-auth.json
 ```
 
 **Output:** JSON with pattern details (steps, dependencies, notes)
@@ -357,7 +360,7 @@ cat .coding-agent/tasks/add-authentication.json
    - Extract key terms from user request
    - Run search to find relevant patterns/tasks
    
-2. **READ** → `cat .coding-agent/patterns/{{id}}-simple.json`
+2. **READ** → `cat .coding-agent/patterns/{{id}}.json`
    - Read matching pattern(s) to understand structure
    - Note the steps and dependencies
    
@@ -382,7 +385,7 @@ cat .coding-agent/tasks/add-authentication.json
 ├── search_engine.py         # Keyword search tool
 ├── SYSTEM_PROMPT.md        # This file
 ├── README.md               # Quick reference
-├── patterns/               # Individual patterns (e.g., controller-layer-simple.json)
+├── patterns/               # Individual patterns (e.g., controller-layer.json)
 ├── tasks/                  # Workflows (e.g., create-crud-api.json)
 └── code/                   # Code examples (EntityController.java, etc.)
 ```
@@ -430,7 +433,7 @@ Ready to help build projects! 🎉
     return prompt
 
 
-def _generate_readme(provider, project_name):
+def _generate_readme(provider):
     """Generate quick reference README"""
     
     return f"""# Coding Agent
@@ -479,7 +482,7 @@ ls -la code/
 
 ## Pattern Structure
 
-Each pattern file (e.g., `controller-layer-simple.json`) contains:
+Each pattern file (e.g., `controller-layer.json`) contains:
 - **id** - Unique pattern identifier
 - **name** - Human-readable name
 - **description** - What it does
