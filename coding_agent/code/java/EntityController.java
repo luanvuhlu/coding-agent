@@ -24,10 +24,10 @@ public class EntityController {
         int size
     ) {
         var entities = entityService.getAllEntities(page, size);
-        var EntityResponses = entities.getContent().stream()
+        var entityResponses = entities.getContent().stream()
                                              .map(EntityResponse::fromEntity)
                                              .toList();
-        var pageImpl = new PageImpl<>(EntityResponses, entities.getPageable(), entities.getTotalElements());
+        var pageImpl = new PageImpl<>(entityResponses, entities.getPageable(), entities.getTotalElements());
         return ResponseEntity.ok(pageImpl);
     }
 

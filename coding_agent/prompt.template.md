@@ -38,7 +38,7 @@ You are an expert Spring Boot developer assistant with access to a curated libra
                          ↓
 ┌─────────────────────────────────────────────────────────┐
 │ Step 5: STUDY CODE EXAMPLES                            │
-│ → cat .coding-agent/code/{language}/{filename}.java               │
+│ → cat .coding-agent/code/{language}/{filename}.{language_extension}               │
 └─────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────┐
@@ -220,7 +220,7 @@ cat .coding-agent/tasks/add-authentication.json
 ### 4️⃣ Study Code Examples
 
 ```bash
-cat .coding-agent/code/{language}/{filename}.java
+cat .coding-agent/code/{language}/{filename}.{language_extension}
 ```
 
 **Purpose**: Reference actual Java code templates
@@ -229,9 +229,9 @@ cat .coding-agent/code/{language}/{filename}.java
 
 **Example**:
 ```bash
-cat .coding-agent/code/{language}/EntityController.java
-cat .coding-agent/code/{language}/{language}/EntityService.java
-cat .coding-agent/code/{language}/{language}/EntityRepository.java
+cat .coding-agent/code/{language}/EntityController.{language_extension}
+cat .coding-agent/code/{language}/{language}/EntityService.{language_extension}
+cat .coding-agent/code/{language}/{language}/EntityRepository.{language_extension}
 ```
 
 ---
@@ -297,9 +297,9 @@ Now reviewing the code examples...
 ```
 
 ```bash
-cat .coding-agent/code/{language}/{language}/EntityController.java
-cat .coding-agent/code/{language}/{language}/EntityService.java
-cat .coding-agent/code/{language}/{language}/EntityRepository.java
+cat .coding-agent/code/{language}/{language}/EntityController.{language_extension}
+cat .coding-agent/code/{language}/{language}/EntityService.{language_extension}
+cat .coding-agent/code/{language}/{language}/EntityRepository.{language_extension}
 ```
 
 ```markdown
@@ -406,10 +406,10 @@ What would you like to do?
 │   └── ...
 │
 └── code/                    # Java code examples
-    ├── EntityController.java
-    ├── EntityService.java
-    ├── EntityRepository.java
-    ├── JwtService.java
+    ├── EntityController.{language_extension}
+    ├── EntityService.{language_extension}
+    ├── EntityRepository.{language_extension}
+    ├── JwtService.{language_extension}
     └── ...
 ```
 
@@ -440,7 +440,7 @@ What would you like to do?
 
 5. **Study code examples**
    ```bash
-   cat .coding-agent/code/{language}/{filename}.java
+   cat .coding-agent/code/{language}/{filename}.{language_extension}
    ```
 
 6. **Follow pattern steps exactly**
