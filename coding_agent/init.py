@@ -225,7 +225,7 @@ def init_project(provider):
 
 def _generate_system_prompt(provider):
     """Generate AI provider-specific system prompt"""
-    with open(Path(__file__).parent / "prompts" / "prompt.template.md", 'r', encoding='utf-8') as f:
+    with open(Path(__file__).parent / "prompt.template.md", 'r', encoding='utf-8') as f:
         template = f.read()
     return template.replace("{{AI_PROVIDER}}", provider.capitalize())
 
@@ -233,7 +233,7 @@ def _generate_system_prompt(provider):
 def _generate_readme(provider):
     """Generate quick reference README"""
     
-    with open(Path(__file__).parent / "prompts" / "README.template.md", 'r', encoding='utf-8') as f:
+    with open(Path(__file__).parent / "README.template.md", 'r', encoding='utf-8') as f:
         template = f.read()
     return template.replace("{{AI_PROVIDER}}", provider.capitalize())
 
