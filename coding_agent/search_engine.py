@@ -11,7 +11,7 @@ from pathlib import Path
 from math import log
 from collections import Counter, defaultdict
 
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR = Path(__file__).parent  # Patterns and tasks are now directly in coding_agent/
 
 
 class KeywordSearch:

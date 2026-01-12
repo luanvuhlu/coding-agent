@@ -35,9 +35,10 @@ setup(
     package_data={
         "coding_agent": [
             "search_engine.py",
-            "data/patterns/*.json",
-            "data/tasks/*.json",
-            "code/*.java",
+            "patterns/*.json",
+            "tasks/*.json",
+            "code/java/*.java",
+            "code/kotlin/*.kt",
             "code/*.xml",
             "templates/*",
         ]

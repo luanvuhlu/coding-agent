@@ -1,7 +1,9 @@
 include README.md
 include LICENSE
-recursive-include coding_agent/data *.json
+recursive-include coding_agent/patterns *.json
+recursive-include coding_agent/tasks *.json
 recursive-include coding_agent/code *.java
+recursive-include coding_agent/code *.kt
 recursive-include coding_agent/code *.xml
 recursive-include coding_agent/templates *
 include coding_agent/search_engine.py

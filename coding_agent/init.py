@@ -47,20 +47,13 @@ def init_project(provider):
     
     coding_agent_dir.mkdir(parents=True, exist_ok=True)
     
-    # Resolve library root directory (package contains data/code folders now)
+    # Resolve library root directory (package contains patterns/tasks folders now)
     package_dir = Path(__file__).parent  # coding_agent package directory
-    lib_root = package_dir  # Data is now inside the package
-    lib_data = lib_root / "data"
+    lib_root = package_dir  # patterns and tasks are now directly in package
+    lib_patterns = lib_root / "patterns"
+    lib_tasks = lib_root / "tasks"
     lib_code = lib_root / "code"
     
-    # Verify data directory exists
-    if not lib_data.exists():
-        print(f"❌ Error: Could not find data directory at {lib_data}")
-        print(f"\n💡 This usually means the package wasn't installed correctly.")
-        print(f"   Try reinstalling: pip install --force-reinstall coding-agent")
-        sys.exit(1)
-
-    lib_data = lib_root / "data"
     lib_code = lib_root / "code"
 
     # 1. Create config.json
@@ -81,38 +74,36 @@ def init_project(provider):
     print("🔗 Setting up pattern/task libraries...")
 
     # Symlink patterns
-    patterns_src = lib_data / "patterns"
-    patterns_dst = coding_agent_dir / "data" / "patterns"
-    if patterns_src.exists():
+    patterns_dst = coding_agent_dir / "patterns"
+    if lib_patterns.exists():
         try:
             if sys.platform == "win32":
                 # Windows: use directory junction
                 import subprocess
-                subprocess.run(["mklink", "/J", str(patterns_dst), str(patterns_src)], 
+                subprocess.run(["mklink", "/J", str(patterns_dst), str(lib_patterns)], 
                              check=True, capture_output=True, shell=True)
             else:
                 # Unix: use symlink
-                patterns_dst.symlink_to(patterns_src)
+                patterns_dst.symlink_to(lib_patterns)
         except Exception as e:
             print(f"⚠️  Could not create symlink for patterns: {e}")
             print("   Copying patterns instead...")
-            shutil.copytree(patterns_src, patterns_dst)
+            shutil.copytree(lib_patterns, patterns_dst)
 
     # Symlink tasks
-    tasks_src = lib_data / "tasks"
-    tasks_dst = coding_agent_dir / "data" / "tasks"
-    if tasks_src.exists():
+    tasks_dst = coding_agent_dir / "tasks"
+    if lib_tasks.exists():
         try:
             if sys.platform == "win32":
                 import subprocess
-                subprocess.run(["mklink", "/J", str(tasks_dst), str(tasks_src)], 
+                subprocess.run(["mklink", "/J", str(tasks_dst), str(lib_tasks)], 
                              check=True, capture_output=True, shell=True)
             else:
-                tasks_dst.symlink_to(tasks_src)
+                tasks_dst.symlink_to(lib_tasks)
         except Exception as e:
             print(f"⚠️  Could not create symlink for tasks: {e}")
             print("   Copying tasks instead...")
-            shutil.copytree(tasks_src, tasks_dst)
+            shutil.copytree(lib_tasks, tasks_dst)
 
     # Symlink code examples
     if lib_code.exists():
