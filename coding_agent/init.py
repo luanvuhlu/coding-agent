@@ -82,7 +82,7 @@ def init_project(provider):
 
     # Symlink patterns
     patterns_src = lib_data / "patterns"
-    patterns_dst = coding_agent_dir / "patterns"
+    patterns_dst = coding_agent_dir / "data" / "patterns"
     if patterns_src.exists():
         try:
             if sys.platform == "win32":
@@ -100,7 +100,7 @@ def init_project(provider):
 
     # Symlink tasks
     tasks_src = lib_data / "tasks"
-    tasks_dst = coding_agent_dir / "tasks"
+    tasks_dst = coding_agent_dir / "data" / "tasks"
     if tasks_src.exists():
         try:
             if sys.platform == "win32":
@@ -149,21 +149,27 @@ def init_project(provider):
         prompt_dir = cwd / ".github" / "prompts"
         prompt_dir.mkdir(parents=True, exist_ok=True)
         prompt_file = prompt_dir / "coding-agent.prompt.md"
-        print(f"   → {prompt_file.relative_to(cwd)}")
+        prompt_dir = cwd / ".github" / "instructions"
+        prompt_dir.mkdir(parents=True, exist_ok=True)
+        instruction_file = prompt_dir / "coding-agent.instructions.md"
+        prompt_files = [prompt_file, instruction_file]
+        for prompt_file in prompt_files:
+            print(f"   → {prompt_file.relative_to(cwd)}")
     elif provider == 'claude':
         # Claude: .claude/skills/coding-agent/SKILL.md
         prompt_dir = cwd / ".claude" / "skills" / "coding-agent"
         prompt_dir.mkdir(parents=True, exist_ok=True)
-        prompt_file = prompt_dir / "SKILL.md"
-        print(f"   → {prompt_file.relative_to(cwd)}")
+        prompt_files = [prompt_dir / "SKILL.md"]
+        for prompt_file in prompt_files:
+            print(f"   → {prompt_file.relative_to(cwd)}")
     else:
         raise ValueError(f"Unsupported provider: {provider}")
     
-    if prompt_file.exists():
-        prompt_file.unlink()
-    with open(prompt_file, 'w', encoding='utf-8') as f:
-        f.write(system_prompt)
-        f.write(system_prompt)
+    for prompt_file in prompt_files:
+        if prompt_file.exists():
+            prompt_file.unlink()
+        with open(prompt_file, 'w', encoding='utf-8') as f:
+            f.write(system_prompt)
     
     # 5. Create README in .coding-agent
     print("📖 Creating README...")

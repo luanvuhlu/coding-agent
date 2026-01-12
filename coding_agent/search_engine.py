@@ -23,28 +23,52 @@ class KeywordSearch:
         self._build_index()
     
     def _build_index(self):
-        """Build search index from all patterns and tasks JSON files"""
-        all_files = list((DATA_DIR / "patterns").glob("*.json")) + \
-                   list((DATA_DIR / "tasks").glob("*.json"))
+        """Build search index from all patterns and tasks JSON files.
+        Walk directories using os.walk with followlinks=True so symlinked/junction
+        directories are traversed correctly (Windows junctions, Unix symlinks).
+        """
+        import os
+
+        all_files = []
+        for sub in ("patterns", "tasks"):
+            dirp = DATA_DIR / sub
+            if not dirp.exists():
+                continue
+
+            # Use os.walk to follow symlinks reliably
+            for root, dirs, files in os.walk(dirp, followlinks=True):
+                for fname in files:
+                    if fname.lower().endswith('.json'):
+                        all_files.append(Path(root) / fname)
         
         total_length = 0
         
         for json_file in all_files:
+            # open files even if they live outside DATA_DIR (symlink targets)
             with open(json_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 
                 # Extract searchable text
                 searchable = self._extract_searchable_text(data)
                 tokens = self._tokenize(searchable)
-                
+
+                # Compute file path relative to DATA_DIR if possible. Handle symlink targets outside DATA_DIR.
+                try:
+                    file_path_rel = str(json_file.relative_to(DATA_DIR))
+                except Exception:
+                    file_path_rel = str(json_file)
+
+                # Determine file type by checking if path contains the tasks directory
+                file_type_var = 'task' if str(DATA_DIR / 'tasks') in str(json_file) else 'pattern'
+
                 doc = {
                     'id': data.get('id', ''),
                     'name': data.get('name', ''),
                     'description': data.get('description', ''),
                     'keywords': data.get('keywords', []),
                     'complexity': data.get('complexity', ''),
-                    'file_path': str(json_file.relative_to(DATA_DIR)),
-                    'file_type': 'task' if 'tasks' in str(json_file) else 'pattern',
+                    'file_path': file_path_rel,
+                    'file_type': file_type_var,
                     'data': data,
                     'tokens': tokens,
                     'doc_length': len(tokens)
@@ -149,7 +173,6 @@ class KeywordSearch:
         """
         query_keywords = self.extract_keywords_from_query(query)
         query_tokens = self._tokenize(' '.join(query_keywords))
-        
         if not query_tokens:
             return []
         
