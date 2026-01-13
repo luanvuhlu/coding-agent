@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Project initialization logic for Coding Agent
-Creates .coding-agent folder with patterns, tasks, and search engine
+Creates .coding-agent folder with tasks, and search engine
 Places AI-specific prompt files in provider-specific locations
 """
 
@@ -23,22 +23,22 @@ def init_project(provider):
     # Create .coding-agent directory
     coding_agent_dir = cwd / ".coding-agent"
     
-    if coding_agent_dir.exists():
-        print(f"❌ Error: {coding_agent_dir} already exists!")
-        print(f"   If you want to reinitialize, delete it first: rm -rf {coding_agent_dir}")
-        sys.exit(1)
+    # if coding_agent_dir.exists():
+    #     print(f"❌ Error: {coding_agent_dir} already exists!")
+    #     print(f"   If you want to reinitialize, delete it first: rm -rf {coding_agent_dir}")
+    #     sys.exit(1)
     
     # Check if AI provider-specific prompt already exists
-    provider_paths = {
-        'copilot': cwd / ".github" / "prompts " / "coding-agent.prompt.md",
-        'claude': cwd / ".claude" / "skills" / "coding-agent" / "SKILL.md",
-    }
+    # provider_paths = {
+    #     'copilot': cwd / ".github" / "prompts " / "coding-agent.prompt.md",
+    #     'claude': cwd / ".claude" / "skills" / "coding-agent" / "SKILL.md",
+    # }
     
-    provider_prompt_path = provider_paths.get(provider)
-    if provider_prompt_path and provider_prompt_path.exists():
-        print(f"❌ Error: {provider_prompt_path} already exists!")
-        print(f"   If you want to reinitialize, delete it first: rm {provider_prompt_path}")
-        sys.exit(1)
+    # provider_prompt_path = provider_paths.get(provider)
+    # if provider_prompt_path and provider_prompt_path.exists():
+    #     print(f"❌ Error: {provider_prompt_path} already exists!")
+    #     print(f"   If you want to reinitialize, delete it first: rm {provider_prompt_path}")
+    #     sys.exit(1)
     
     print(f"✨ Initializing Coding Agent with {provider.upper()}...")
     print(f"📁 Creating .coding-agent directory...")
@@ -47,10 +47,9 @@ def init_project(provider):
     
     coding_agent_dir.mkdir(parents=True, exist_ok=True)
     
-    # Resolve library root directory (package contains patterns/tasks folders now)
+    # Resolve library root directory (package contains tasks folders now)
     package_dir = Path(__file__).parent  # coding_agent package directory
-    lib_root = package_dir  # patterns and tasks are now directly in package
-    lib_patterns = lib_root / "patterns"
+    lib_root = package_dir  # tasks are now directly in package
     lib_tasks = lib_root / "tasks"
     lib_code = lib_root / "code"
     
@@ -61,7 +60,6 @@ def init_project(provider):
     config = {
         "ai_provider": provider,
         "version": "0.1.0",
-        "patterns_path": "patterns",
         "tasks_path": "tasks",
         "code_path": "code",
         "search_engine": "search_engine.py"
@@ -71,28 +69,11 @@ def init_project(provider):
         json.dump(config, f, indent=2)
 
     # 2. Create symlinks or copy directories
-    print("🔗 Setting up pattern/task libraries...")
-
-    # Symlink patterns
-    patterns_dst = coding_agent_dir / "patterns"
-    if lib_patterns.exists():
-        try:
-            if sys.platform == "win32":
-                # Windows: use directory junction
-                import subprocess
-                subprocess.run(["mklink", "/J", str(patterns_dst), str(lib_patterns)], 
-                             check=True, capture_output=True, shell=True)
-            else:
-                # Unix: use symlink
-                patterns_dst.symlink_to(lib_patterns)
-        except Exception as e:
-            print(f"⚠️  Could not create symlink for patterns: {e}")
-            print("   Copying patterns instead...")
-            shutil.copytree(lib_patterns, patterns_dst)
+    print("🔗 Setting up task libraries...")
 
     # Symlink tasks
     tasks_dst = coding_agent_dir / "tasks"
-    if lib_tasks.exists():
+    if lib_tasks.exists() and not tasks_dst.exists():
         try:
             if sys.platform == "win32":
                 import subprocess
@@ -106,8 +87,8 @@ def init_project(provider):
             shutil.copytree(lib_tasks, tasks_dst)
 
     # Symlink code examples
-    if lib_code.exists():
-        code_dst = coding_agent_dir / "code"
+    code_dst = coding_agent_dir / "code"
+    if lib_code.exists() and not code_dst.exists():
         try:
             if sys.platform == "win32":
                 import subprocess
@@ -200,7 +181,6 @@ def init_project(provider):
     print(f"\n📍 Data Location: {coding_agent_dir.relative_to(cwd)}")
     print(f"📍 Prompt Location: {prompt_file.relative_to(cwd)}")
     print(f"\n📚 Available Resources:")
-    print(f"   - Patterns: {coding_agent_dir.relative_to(cwd)}/patterns/")
     print(f"   - Tasks: {coding_agent_dir.relative_to(cwd)}/tasks/")
     print(f"   - Code Examples: {coding_agent_dir.relative_to(cwd)}/code/")
     print(f"   - Search Tool: {coding_agent_dir.relative_to(cwd)}/search_engine.py")
@@ -208,7 +188,7 @@ def init_project(provider):
     if provider == 'copilot':
         print(f"\n💡 GitHub Copilot will automatically discover your prompt at:")
         print(f"   {prompt_file.relative_to(cwd)}")
-        print(f"\n   Start coding and Copilot will use these patterns!")
+        print(f"\n   Start coding and Copilot will use these tasks!")
     elif provider == 'claude':
         print(f"\n💡 Claude Projects will automatically discover your skill at:")
         print(f"   {prompt_file.relative_to(cwd)}")

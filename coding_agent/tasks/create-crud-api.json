@@ -3,156 +3,96 @@
   "name": "Create CRUD REST API",
   "description": "Complete workflow to build a CRUD API from database to controller",
   "keywords": ["create", "crud", "api", "rest", "full-stack", "endpoint", "database", "entity", "workflow", "complete"],
-  
-  "variables": {
-    "entity_name": {
-      "type": "string",
-      "description": "Entity name (e.g., User, Product, Order)",
-      "example": "Product"
-    },
-    "table_name": {
-      "type": "string",
-      "description": "Database table name (snake_case)",
-      "example": "products"
-    },
-    "columns": {
-      "type": "array",
-      "description": "Table columns in format: name:type:constraints",
-      "example": ["name:varchar(255):not_null", "price:decimal(10,2)", "active:boolean:default_true"]
-    }
+  "params": {
+    "entity": "{{entity_name}}",
+    "table": "{{table_name}}",
+    "fields": "{{columns}}",
+    "basePackageFolder": "{{read from project structure or ask user}}"
   },
-  
   "tasks": [
     {
       "step": 1,
-      "name": "Create Liquibase Migration",
-      "pattern": "liquibase-migration",
-      "description": "Add database table and columns",
+      "name": "Create JPA Entity",
+      "description": "Map database table to Kotlin entity class",
       "files": [
         {
-          "path": "src/main/resources/db/changelog/{{timestamp}}-create-{{table_name}}.xml",
-          "template": "liquibase-create-table",
+          "path": "src/main/kotlin/{basePackageFolder}/entity/{{entity_name}}.kt",
           "params": {
+            "entity": "{{entity_name}}",
             "table": "{{table_name}}",
-            "columns": "{{columns}}"
+            "fields": "{{columns}}"
+          },
+          "code_examples": {
+            "kotlin": "code/kotlin/Entity.kt"
           }
         }
       ]
     },
     {
       "step": 2,
-      "name": "Create JPA Entity",
-      "pattern": "jpa-entity",
-      "description": "Map database table to Java entity class",
+      "name": "Create Repository Interface",
+      "description": "Define data access methods",
       "files": [
         {
-          "path": "src/main/java/com/example/entity/{{entity_name}}.java",
-          "template": "jpa-entity",
+          "path": "src/main/kotlin/{basePackageFolder}/repository/{{entity_name}}Repository.kt",
           "params": {
-            "entity": "{{entity_name}}",
-            "table": "{{table_name}}",
-            "fields": "{{columns}}"
+            "entity": "{{entity_name}}"
+          },
+          "code_examples": {
+            "kotlin": "code/kotlin/EntityRepository.kt"
           }
         }
       ]
     },
     {
       "step": 3,
-      "name": "Create Repository Interface",
-      "pattern": "repository-layer",
-      "description": "Define data access methods",
+      "name": "Create Service Layer",
+      "description": "Implement business logic",
       "files": [
         {
-          "path": "src/main/java/com/example/repository/{{entity_name}}Repository.java",
-          "template": "spring-data-repository",
+          "path": "src/main/kotlin/{basePackageFolder}/service/{{entity_name}}Service.kt",
           "params": {
             "entity": "{{entity_name}}"
+          },
+          "code_examples": {
+            "kotlin": "code/kotlin/EntityService.kt"
           }
         }
       ]
     },
     {
       "step": 4,
-      "name": "Create Service Layer",
-      "pattern": "service-layer",
-      "description": "Implement business logic",
+      "name": "Create REST Controller",
+      "description": "Expose CRUD endpoints",
+      "notes": [
+        "Check whether to use @RestController or @Controller based on project conventions",
+        "Should use pagination for list endpoints if dataset could be large"
+      ],
       "files": [
         {
-          "path": "src/main/java/com/example/service/{{entity_name}}Service.java",
-          "template": "service-class",
+          "path": "src/main/kotlin/{basePackageFolder}/controller/{{entity_name}}Controller.kt",
           "params": {
-            "entity": "{{entity_name}}"
+            "entity": "{{entity_name}}",
+            "path": "/api/{{table_name}}"
+          },
+          "code_examples": {
+            "kotlin": "code/kotlin/EntityController.kt"
           }
         }
       ]
     },
     {
       "step": 5,
-      "name": "Create REST Controller",
-      "pattern": "rest-controller",
-      "description": "Expose CRUD endpoints",
-      "files": [
-        {
-          "path": "src/main/java/com/example/controller/{{entity_name}}Controller.java",
-          "template": "rest-controller",
-          "params": {
-            "entity": "{{entity_name}}",
-            "path": "/api/{{table_name}}"
-          }
-        }
-      ]
-    },
-    {
-      "step": 6,
-      "name": "Create DTOs",
-      "pattern": "dto-pattern",
-      "description": "Request and response objects",
-      "files": [
-        {
-          "path": "src/main/java/com/example/dto/{{entity_name}}Request.java",
-          "template": "dto-request",
-          "params": {
-            "entity": "{{entity_name}}",
-            "fields": "{{columns}}"
-          }
-        },
-        {
-          "path": "src/main/java/com/example/dto/{{entity_name}}Response.java",
-          "template": "dto-response",
-          "params": {
-            "entity": "{{entity_name}}",
-            "fields": "{{columns}}"
-          }
-        }
-      ]
-    },
-    {
-      "step": 7,
       "name": "Add Unit Tests",
-      "pattern": "service-test",
       "description": "Test service layer with mocks",
       "files": [
         {
-          "path": "src/test/java/com/example/service/{{entity_name}}ServiceTest.java",
-          "template": "service-test",
+          "path": "src/test/kotlin/{basePackageFolder}/service/{{entity_name}}ServiceTest.kt",
           "params": {
             "entity": "{{entity_name}}"
-          }
-        }
-      ]
-    },
-    {
-      "step": 8,
-      "name": "Add Integration Tests",
-      "pattern": "controller-integration-test",
-      "description": "Test API endpoints end-to-end",
-      "files": [
-        {
-          "path": "src/test/java/com/example/controller/{{entity_name}}ControllerTest.java",
-          "template": "controller-integration-test",
-          "params": {
-            "entity": "{{entity_name}}",
-            "path": "/api/{{table_name}}"
+          },
+          "code_examples": {
+            "kotlin": "code/kotlin/EntityServiceTest.kt"
           }
         }
       ]

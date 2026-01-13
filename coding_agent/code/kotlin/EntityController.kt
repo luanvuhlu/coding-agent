@@ -6,6 +6,10 @@ import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
+/**
+ * REST controller for managing Entity resources.
+ * @author Luan Vu Van
+ */
 @RestController
 @RequestMapping("/entities")
 class EntityController(private val entityService: EntityService) {
